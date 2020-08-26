@@ -1,6 +1,6 @@
 # Adaptive Cards V2 documentation
 
-# Context
+## Context
 
 Adaptive Cards are platform-agnostic snippets of UI, sent as JSON, that apps and services can share. See [adaptivecards.io](http://adaptivecards.io) for more information on Adaptive Cards. Adaptive cards not only adapt to the look-and-feel of the host, but also provide rich interaction capabilities.
 
