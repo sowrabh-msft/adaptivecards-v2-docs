@@ -199,3 +199,7 @@ As part of the invoke request, you get the following information
 3. Be sure to include a limited list of users (< 5) who need the ability to automatically refresh their card. 
 4. Handle the `adaptiveCard/action` request that Teams client sends when user takes an action on the card or autorefresh request
 5. Use the request context to create an appropriate Adaptive Card for the user. Send the card according to the response schema mentioned above.
+
+## References
+- Adaptive Cards v2 spec
+- [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1393)
