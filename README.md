@@ -130,12 +130,72 @@ The size of `userIds` should not exceed 5 as per current limit.
 }
 ```
 
-### `adaptiveCard/action` Invoke payload
+### `adaptiveCard/action` Invoke request and response formats
 
+As part of the invoke request, you get the following information
+
+```JSONc
+{ 
+  
+// ... In addition to other Invoke request parameters,
+// you'd receive the following
+
+// name is always "adaptiveCard/action"
+    "name": "adaptiveCard/action",  
+
+    "value": { 
+
+        "action": { 
+
+            "type": "Action.Execute", 
+
+            "id": "abc", 
+
+            "data": { ... } 
+
+        },
+
+        "trigger": "automatic | manual" 
+
+    }
+} 
+```
+
+### Bot Response
+
+```JSONC
+{ 
+
+    “statusCode”: <number (200 – 599)>, 
+
+    “type”: <string>, 
+
+    “value”: <object> 
+
+} 
+```
+
+| Field | Description |
+| -------- | ----------- |
+| **statusCode** | This field is a number ranging from 200-599 that mirrors HttpStatusCode values and is meant to be a sub-status for the result of the bot processing the Invoke. A missing, null, or undefined value for statusCode implies a 200 (Success).   |
+| **type** | A set of well-known string constants that describe the expected shape of the value property  |
+| **value** | An object that is specific to the type of response body  |
+
+
+**Valid response - statusCode = 200**
+| statusCode| type | typeof(value) |
+| ----------| ---- | ----------- |
+| 200 \| undefined \| null | application/vnd.microsoft.activity.message | \<string\> |
+| 200 \| undefined \| null | application/vnd.microsoft.card.adaptive | \<AdaptiveCard\> |
+
+
+    Note: Responses for other `statusCodes` to be added
 
 
 ## Steps to leverage Adaptive Card v2 features
 
 1. Use `Action.Execute` instead of `Action.Submit`. Replace all `Action.Submit` instances where you need role based views with `Action.Execute` 
-2. Put a refresh property in the Adaptive Card payload to handle refresh requests. This allows you to give the latest state of the card always when the user sees it. 
-3. 
+2. Put a refresh property in the Adaptive Card payload to handle refresh requests. This allows you to give the latest state of the card always when the user sees it.
+3. Be sure to include a limited list of users (< 5) who need the ability to automatically refresh their card. 
+4. Handle the `adaptiveCard/action` request that Teams client sends when user takes an action on the card or autorefresh request
+5. Use the request context to create an appropriate Adaptive Card for the user. Send the card according to the response schema mentioned above.
