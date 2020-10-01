@@ -50,7 +50,8 @@ Old Action Model            |  New Action Model
     {
       "type": "Action.Execute",
       "title": "Submit",
-      "verb": "personalDetailsFormSubmit"
+      "verb": "personalDetailsFormSubmit",
+      "fallback": "Action.Submit"
     }
   ]
 }
@@ -81,7 +82,7 @@ Rest of the properties are similar to those of `Action.Submit`. See the [documen
 
 Auto Refresh ensures that the users have a consistent experience by fetching the latest state of the card before showing it to the user. It is recommended that you  include refresh section whenever you use `Action.Execute` in the card.
 
-Refresh contains an action property `action`  of type `Action.Execute` and `userIds` property - an array of user IDs for who the auto refresh is enabled.
+Refresh contains an action property `action`  of type `Action.Execute` and `userIds` property - an array of user IDs for whom auto refresh is enabled.
 
 The size of `userIds` should not exceed 5 as per current limit.
 
@@ -124,7 +125,8 @@ The size of `userIds` should not exceed 5 as per current limit.
     {
       "type": "Action.Execute",
       "title": "Submit",
-      "verb": "personalDetailsFormSubmit"
+      "verb": "personalDetailsFormSubmit",
+      "fallback": "Action.Submit"
     }
   ]
 }
@@ -200,6 +202,44 @@ As part of the invoke request, you get the following information
 4. Handle the `adaptiveCard/action` request that Teams client sends when user takes an action on the card or autorefresh request
 5. Use the request context to create an appropriate Adaptive Card for the user. Send the card according to the response schema mentioned above.
 
+## Backward compatibility
+In order for your cards to be backward compatible and work for users on older versions of Teams, it is important that you include `fallback` property with value as `Action.Submit` in each of your `Action.Execute` buttons.
+
+
+This ensures that even  in older clients where `Action.Execute` is not supported, buttons get rendered properly. Make sure that you provide support to handle `Action.Submit` in addition to `Action.Execute` in your bot service.
+ 
+```JSON
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Present a form and submit it back to the originator"
+    },
+    {
+      "type": "Input.Text",
+      "id": "firstName",
+      "placeholder": "What is your first name?"
+    },
+    {
+      "type": "Input.Text",
+      "id": "lastName",
+      "placeholder": "What is your last name?"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Execute",
+      "title": "Submit",
+      "verb": "personalDetailsFormSubmit",
+      "fallback": "Action.Submit"
+    }
+  ]
+}
+```
+
 ## References
-- Adaptive Cards v2 spec
 - [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1393)
+- [Adaptive Cards @ Ignite 2020](https://techcommunity.microsoft.com/t5/video-hub/elevate-user-experiences-with-teams-and-adaptive-cards/m-p/1689460)
