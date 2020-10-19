@@ -44,14 +44,17 @@ Old Action Model            |  New Action Model
       "type": "Input.Text",
       "id": "lastName",
       "placeholder": "What is your last name?"
-    }
-  ],
-  "actions": [
+    },
     {
-      "type": "Action.Execute",
-      "title": "Submit",
-      "verb": "personalDetailsFormSubmit",
-      "fallback": "Action.Submit"
+      "type" : "ActionSet",
+      "actions": [
+        {
+          "type": "Action.Execute",
+          "title": "Submit",
+          "verb": "personalDetailsFormSubmit",
+          "fallback": "Action.Submit"
+        }
+      ]
     }
   ]
 }
@@ -104,7 +107,7 @@ The size of `userIds` should not exceed 5 as per current limit.
       "verb": "personalDetailsCardRefresh"
     },
     "userIds": []
-  }
+  },
   "body": [
     {
       "type": "TextBlock",
@@ -119,14 +122,17 @@ The size of `userIds` should not exceed 5 as per current limit.
       "type": "Input.Text",
       "id": "lastName",
       "placeholder": "What is your last name?"
-    }
-  ],
-  "actions": [
-    {
-      "type": "Action.Execute",
-      "title": "Submit",
-      "verb": "personalDetailsFormSubmit",
-      "fallback": "Action.Submit"
+    },
+    { 
+      "type": "ActionSet",
+      "actions": [
+        {
+          "type": "Action.Execute",
+          "title": "Submit",
+          "verb": "personalDetailsFormSubmit",
+          "fallback": "Action.Submit"
+        }
+      ]
     }
   ]
 }
@@ -205,8 +211,10 @@ As part of the invoke request, you get the following information
 ## Backward compatibility
 In order for your cards to be backward compatible and work for users on older versions of Teams, it is important that you include `fallback` property with value as `Action.Submit` in each of your `Action.Execute` buttons.
 
-
 This ensures that even  in older clients where `Action.Execute` is not supported, buttons get rendered properly. Make sure that you provide support to handle `Action.Submit` in addition to `Action.Execute` in your bot service.
+
+## Important Note
+Some older Teams clients do not support fallback property when not wrapped in an `ActionSet`. In order to not break on such clients, it is **strongly recommended** that you wrap _all_ your `Action.Execute` in `ActionSet`. See example below on how to wrap `Action.Execute` in `ActionSet`.
  
 ```JSON
 {
@@ -227,14 +235,17 @@ This ensures that even  in older clients where `Action.Execute` is not supported
       "type": "Input.Text",
       "id": "lastName",
       "placeholder": "What is your last name?"
-    }
-  ],
-  "actions": [
+    },
     {
-      "type": "Action.Execute",
-      "title": "Submit",
-      "verb": "personalDetailsFormSubmit",
-      "fallback": "Action.Submit"
+      "type": "ActionSet",
+      "actions": [
+        {
+          "type": "Action.Execute",
+          "title": "Submit",
+          "verb": "personalDetailsFormSubmit",
+          "fallback": "Action.Submit"
+        }
+      ]
     }
   ]
 }
@@ -243,3 +254,40 @@ This ensures that even  in older clients where `Action.Execute` is not supported
 ## References
 - [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1393)
 - [Adaptive Cards @ Ignite 2020](https://techcommunity.microsoft.com/t5/video-hub/elevate-user-experiences-with-teams-and-adaptive-cards/m-p/1689460)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### sdfd
