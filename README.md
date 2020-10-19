@@ -46,7 +46,7 @@ Old Action Model            |  New Action Model
       "placeholder": "What is your last name?"
     },
     {
-      "type" : "ActionSet",
+      "type": "ActionSet",
       "actions": [
         {
           "type": "Action.Execute",
