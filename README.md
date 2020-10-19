@@ -213,8 +213,9 @@ In order for your cards to be backward compatible and work for users on older ve
 
 This ensures that even  in older clients where `Action.Execute` is not supported, buttons get rendered properly. Make sure that you provide support to handle `Action.Submit` in addition to `Action.Execute` in your bot service.
 
-## Important Note
-Some older Teams clients do not support fallback property when not wrapped in an `ActionSet`. In order to not break on such clients, it is **strongly recommended** that you wrap _all_ your `Action.Execute` in `ActionSet`. See example below on how to wrap `Action.Execute` in `ActionSet`.
+
+> ### Important Note
+> Some older Teams clients do not support fallback property when not wrapped in an `ActionSet`. In order to not break on such clients, it is **strongly recommended** that you wrap _all_ your `Action.Execute` in `ActionSet`. See example below on how to wrap `Action.Execute` in `ActionSet`.
  
 ```JSON
 {
