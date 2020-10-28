@@ -143,7 +143,7 @@ When an `Action.Execute` is executed in the client (whether it's the refresh act
 
 #### Request format
 
-```JSON
+```
 { 
   "type": "invoke",
   "name": "adaptiveCard/action",
