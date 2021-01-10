@@ -20,19 +20,20 @@ Before `Action.Execute` |  With `Action.Execute`
 
 Source: [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1393)
 
-The rest of this document focuses on documenting the universal Bot action model in the context of Teams. For information on how to leverage it in Outlook, please refer to the Outlook Actionable Message documentation. Note that support in Outlook is under active development and not yet available across all Outlook versions.
+The rest of this document focuses on documenting the universal Bot action model in the context of Teams & Outlook. If you are already using Adaptive cards on Teams with Bot, you can use  the same Bot with a few changes to support `Action.Execute`. If you are using Actionable Messages on Outlook, you will need to develop a Bot that supports `Action.Execute`. Currently the support on Outlook clients for Universal Bot action model is under active development.
 
 ## Schema
 
 ### Action.Execute
-When authoring Adaptive Cards, use `Action.Execute` in place of both `Action.Submit`. The schema for `Action.Execute` is quite similar to that of `Action.Submit`:
+
+When authoring Adaptive Cards, use `Action.Execute` in place of both `Action.Submit` &  `Action.Http`. The schema for `Action.Execute` is quite similar to that of `Action.Submit`.
 
 **Example JSON**
 ```json
 {
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
-  "version": "1.0",
+  "version": "2.0",
   "body": [
     {
       "type": "TextBlock",
@@ -98,7 +99,8 @@ Note thae the `userIds` property is ignored in Outlook, and the `refresh` proper
 {
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
-  "version": "1.0",
+  "originator":"c9b4352b-a76b-43b9-88ff-80edddaa243b",
+  "version": "2.0",
   "refresh": {
     "action": {
       "type": "Action.Execute",
@@ -136,6 +138,10 @@ Note thae the `userIds` property is ignored in Outlook, and the `refresh` proper
   ]
 }
 ```
+
+#### IMPORTANT - ORIGINATOR Field
+
+The `originator` is an unique identifier(GUID) used to identify the partner. This is generated when a partner subscribes to outlook as a channel. This is an important field that is checked on outlook clients before the adaptive cards are rendered. This field is ignored on teams.
 
 ### `adaptiveCard/action` Invoke activity
 
@@ -189,7 +195,7 @@ If the Bot processed the request (i.e. if the Bot's code was involved at all in 
 The below table lists the various statucCode that can be found in the response body and their meaning. Note that in the absence of the `statusCode` property, it is assumed to be 200.
 
 | statusCode | Description |
-| ----------| ---- | ----------- |
+| ----------| ----------- |
 | 200 | The Bot successfully processed the request. The `type` and `value` contain the actual result |
 | TODO: Other codes | TODO: Description for other codes |
 
@@ -201,12 +207,16 @@ The below table lists the values the `type` property might have. Each `type` val
 
 ## Summary: how to leverage the universal Bot action model
 
-1. Use `Action.Execute` instead of `Action.Submit`. To update an existing scenario, replace all instances of `Action.Submit` with `Action.Execute`
-2. Add a `refresh` clause to your Adaptive Card if you want to leverage the automatic refresh mechanism or if your scenario requires contextual views. Be sure to specify the `userIds` property to identify which users (maximum 5) will get automatic updates. 
-3. Handle `adaptiveCard/action` Invoke requests in your Bot
-4. Whenever your Bot needs to return a new card as a result of processing an `Action.Execute`, you can use the Invoke request's context to generate cards that are specifically crafted for a given user. Make sure the response conforms to the response schema defined above.
+1. Use `Action.Execute` instead of `Action.Submit`. To update an existing scenario on teams, replace all instances of `Action.Submit` with `Action.Execute`. For upgrading an existing scenario on Outlook please refer the backward compatibility section below.
+2. For cards to surface on outlook add the `originator` field. Refer the Sample JSON above.  
+3. Add a `refresh` clause to your Adaptive Card if you want to leverage the automatic refresh mechanism or if your scenario requires contextual views. Be sure to specify the `userIds` property to identify which users (maximum 5) will get automatic updates. 
+4. Handle `adaptiveCard/action` Invoke requests in your Bot
+5. Whenever your Bot needs to return a new card as a result of processing an `Action.Execute`, you can use the Invoke request's context to generate cards that are specifically crafted for a given user. Make sure the response conforms to the response schema defined above.
 
-## Backward compatibility
+## Backward compatibility - Outlook
+Actionable messages on outlook supports `Action.Http` (which is a REST end point) whereas Universal Bot action model supports `Action.Execute`(which is a bot end point). Partners that want to leverage the features of Universal Bot action model need to implement a bot and subscribe to `Outlook Actionable Messages` as a channel. Work is in progress to allow for seamless migration for existing Actionable message partners to upgrade to Universal Bot action model.
+
+## Backward compatibility - Teams
 In order for your cards to be backward compatible and work for users on older versions of Teams, your `Action.Execute` actions should include a `fallback` property defined as an `Action.Submit`. Your Bot should be coded in such a way that it can process both `Action.Execute` and `Action.Submit`. Note that it is not possible for your Bot to return a new card when processing an `Action.Submit`, so fallback behavior via `Action.Submit` will provide a degraded experience for the end user.
 
 > ### Important Note
