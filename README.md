@@ -10,7 +10,7 @@ Adaptive Cards v2 is an effort to consolidate these actions with a single action
 
 Before Adaptive Cards v2            |  With Adaptive Cards v2
 :-------------------------:|:-------------------------:
-![Untitled.png](Untitled.png) | ![Slide28.jpg](Slide28.jpg)
+![inconsistent-action-model-lifecycle.png](media/universal-action-model/inconsistent-action-model-lifecycle.png) | ![universal-action-model-lifecycle.jpg](media/universal-action-model/universal-action-model-lifecycle.jpg)
 
 Source: [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1393)
 
@@ -18,7 +18,7 @@ Source: [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1
 
 Old Action Model            |  New Action Model
 :-------------------------:|:-------------------------:
-![Untitled%201.png](Untitled%201.png) | ![Slide24.jpg](Slide24.jpg)
+![inconsistent-action-model.png](media/universal-action-model/inconsistent-action-model.png) | ![new-universal-action-model.jpg](media/universal-action-model/new-universal-action-model.jpg)
 
 
 ### Action.Execute
