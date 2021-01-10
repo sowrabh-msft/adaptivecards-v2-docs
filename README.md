@@ -139,7 +139,7 @@ Note thae the `userIds` property is ignored in Outlook, and the `refresh` proper
 }
 ```
 
-#### IMPORTANT - ORIGINATOR Field
+#### Important - ORIGINATOR Field in Outlook
 
 The `originator` is an unique identifier(GUID) used to identify the partner. This is generated when a partner subscribes to outlook as a channel. This is an important field that is checked on outlook clients before the adaptive cards are rendered. This field is ignored on teams.
 
