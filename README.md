@@ -84,15 +84,10 @@ Alongside `Action.Execute`, a new refresh mechanism is now supported, making it 
 
 To allow an Adaptiver Card to automatically refresh, define its `refresh` property, which embeds an `action` of type `Action.Execute` as well as a `userIds` array.
 
-#### IMPORTANT
-If the `userIds` list property isn't included in the `refresh` section of the card, the card will NOT be automatically refresh on display. Instead, a button will be presented to the user to allow them to manually refresh. The reason for this is Channels in Teams can include a large number of members; if many members are all viewing the channel at the same time, and unconditional automatic refresh would results in many concurrent calls to the Bot, which would not scale. To alleviate the potential scale problem, the `userIds` property should always be included to identify which users should get an automatic refresh, with a maximum of **5** user IDs currently being allowed.
-
-Note thae the `userIds` property is ignored in Outlook, and the `refresh` property is always automatically honored. There is no scale issue in Outlook because users will typically view the card at different times.
-
 | Property | Type | Required | Description 
 | -------- | ---- | -------- | ----------- 
 | **action** | `"Action.Execute"` | Yes | Must be an action instance of type `"Action.Execute"`. |
-| **userIds** | `Array<string>` | Yes | An array of `MRI`s of users for whom Auto Refresh must be enabled |
+| **userIds** | `Array<string>` | Yes | An array of `MRI`s of users for whom Auto Refresh must be enabled.<br><br>**IMPORTANT:** If the `userIds` list property isn't included in the `refresh` section of the card, the card will NOT be automatically refresh on display. Instead, a button will be presented to the user to allow them to manually refresh. The reason for this is Channels in Teams can include a large number of members; if many members are all viewing the channel at the same time, and unconditional automatic refresh would results in many concurrent calls to the Bot, which would not scale. To alleviate the potential scale problem, the `userIds` property should always be included to identify which users should get an automatic refresh, with a maximum of **5** user IDs currently being allowed.<br><br>Note thae the `userIds` property is ignored in Outlook, and the `refresh` property is always automatically honored. There is no scale issue in Outlook because users will typically view the card at different times. |
 
 **Sample JSON**
 ```JSON
@@ -139,9 +134,9 @@ Note thae the `userIds` property is ignored in Outlook, and the `refresh` proper
 }
 ```
 
-#### Important - ORIGINATOR Field in Outlook
+#### Important note for Outlook Actionable Message developers
 
-The `originator` is an unique identifier(GUID) used to identify the partner. This is generated when a partner subscribes to outlook as a channel. This is an important field that is checked on outlook clients before the adaptive cards are rendered. This field is ignored on teams.
+When developing Outlook Actionable Message scenarios, the Adaptive Card's `originator` property must be specified. `originator` is a Globally Unique Identified (GUID) generated at the time a Bot subscribes to the Outlook channel. It is used by Outlook to validate that the Adaptive Card was sent by an authorized Bot. The Adaptive Card will not be rendered in Outlook if `originator` is absent. `originator` is ignored in Teams.
 
 ### `adaptiveCard/action` Invoke activity
 
@@ -175,6 +170,8 @@ When an `Action.Execute` is executed in the client (whether it's the refresh act
 
 #### Response format
 
+If the Bot did process an incoming `adaptiveCard/action` Invoke activity (i.e. if the Bot's code was involved at all in processing the request), the HTTP response's status code returned by the Bot must be equal to 200 and the body of the HTTP response must be formatted as follows:
+
 ```JSON
 { 
     "statusCode": <number (200 – 599)>, 
@@ -185,25 +182,23 @@ When an `Action.Execute` is executed in the client (whether it's the refresh act
 
 | Field | Description |
 | -------- | ----------- |
-| **statusCode** | This field is a number ranging from 200-599 that mirrors HttpStatusCode values and is meant to be a sub-status for the result of the bot processing the Invoke. A missing, null, or undefined value for statusCode implies a 200 (Success).   |
+| **statusCode** | An HTTP response status code of 200 does NOT necessarily mean the Bot was able to _successfully_ process the request. A client application MUST always look at the `statucCode` property in the response's body to know how the Bot processed the request. `statusCode` is a number ranging from 200-599 that mirrors HTTP status code values and is meant to be a sub-status for the result of the bot processing the Invoke. A missing, null, or undefined value for `statusCode` implies a 200 (Success). |
 | **type** | A set of well-known string constants that describe the expected shape of the value property  |
 | **value** | An object that is specific to the type of response body  |
 
-**Status codes**
-If the Bot processed the request (i.e. if the Bot's code was involved at all in processing the request), the HTTP response's status code will be equal to 200. Otherwise, it will be in either the `4xx` or `5xx` range. An HTTP status code of 200 however does not necessarily mean that the Bot successfully processed the request. A client application should always look at the statucCode property in the response's body in addition to the HTTP response status code.
+**Supported status codes**
 
-The below table lists the various statucCode that can be found in the response body and their meaning. Note that in the absence of the `statusCode` property, it is assumed to be 200.
+The following table lists the allowed values for `statusCode`, `type`, and `value` in the Bot's response body:
 
-| statusCode | Description |
-| ----------| ----------- |
-| 200 | The Bot successfully processed the request. The `type` and `value` contain the actual result |
-| TODO: Other codes | TODO: Description for other codes |
-
-The below table lists the values the `type` property might have. Each `type` value identifies the type of data in the `value` property:
-| type |
-| ---- |
-| application/vnd.microsoft.activity.message | The `value` property contains a string message. |
-| application/vnd.microsoft.card.adaptive | The `value` property contains a serialized Adaptive Card payload meant to be a replacement to the Adaptive Card that was at the origin of the action. |
+| Status Code | Type | Value Schema | Notes |
+| --- | --- | --- | --- |
+| 200 | `application/vnd.microsoft.adaptive.card` | `Adaptive Card` | The request was successfully processed, and the response includes an Adaptive Card that the client should display in place of the current one. |
+| 200 | `application/vnd.microsoft.activity.message` | `string` | The request was successfully processed, and the response includes a message that the client should display. |
+| 400 | `application/vnd.microsoft.error` | Error Object (TODO: needs link) | The incoming request was invalid. | 
+| 401 | `application/vnd.microsoft.activity.loginRequest` | OAuthCard (TODO: needs link) | The client needs to prompt the user to authenticate. |
+| 401 | `application/vnd.microsoft.error.inccorectAuthCode` | null | The authentication state passed by the client was incorrect and authentication failed. |
+| 412 | `application/vnd.microsoft.error.preconditionFailed` | Error Object (TODO: needs link) | The SSO authentication flow failed. |
+| 500 | `application/vnd.microsoft.error` | Error Object (TODO: needs link) | An unexpected error occurred. |
 
 ## Summary: how to leverage the universal Bot action model
 
@@ -213,13 +208,21 @@ The below table lists the values the `type` property might have. Each `type` val
 4. Handle `adaptiveCard/action` Invoke requests in your Bot
 5. Whenever your Bot needs to return a new card as a result of processing an `Action.Execute`, you can use the Invoke request's context to generate cards that are specifically crafted for a given user. Make sure the response conforms to the response schema defined above.
 
-## Backward compatibility - Outlook
-Actionable messages on outlook supports `Action.Http` (which is a REST end point) whereas Universal Bot action model supports `Action.Execute`(which is a bot end point). Partners that want to leverage the features of Universal Bot action model need to implement a bot and subscribe to `Outlook Actionable Messages` as a channel. Work is in progress to allow for seamless migration for existing Actionable message partners to upgrade to Universal Bot action model.
+## Backward compatibility
 
-## Backward compatibility - Teams
+### Outlook
+
+The new `Action.Execute` universal action model is a departure from the `Action.Http` action model currently used by Outlook Actionable Messages, where actions are encoded in the Adaptive Card as explicit HTTP calls. The `Action.Execute` model makes it possible for developers to implement scenarios that "just work" in both Outlook and Teams. Actionable Message scenarios can either use the `Action.Http` model or the new `Action.Execute` model, but not both. Scenarios that use the universal `Action.Execute` model must be implemented as Bots and subscribe to `Outlook Actionable Messages` channel.
+
+> #### Important notes
+> - Scenarios implemented using the universal `Action.Execute` model will not be compatible with older versions of Outlook
+> - Work is in progress to allow existing Actionable Message scenarios to seamlessly migrate to the universal `Action.Execute` model
+
+### Teams
+
 In order for your cards to be backward compatible and work for users on older versions of Teams, your `Action.Execute` actions should include a `fallback` property defined as an `Action.Submit`. Your Bot should be coded in such a way that it can process both `Action.Execute` and `Action.Submit`. Note that it is not possible for your Bot to return a new card when processing an `Action.Submit`, so fallback behavior via `Action.Submit` will provide a degraded experience for the end user.
 
-> ### Important Note
+> #### Important note
 > Some older Teams clients do not support fallback property when not wrapped in an `ActionSet`. In order to not break on such clients, it is **strongly recommended** that you wrap _all_ your `Action.Execute` in `ActionSet`. See example below on how to wrap `Action.Execute` in `ActionSet`.
  
 ```JSON
