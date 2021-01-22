@@ -24,9 +24,19 @@ The rest of this document focuses on documenting the universal Bot action model 
 
 ## Schema
 
-> **IMPORTANT**
+> ### IMPORTANT
 >
 > The universal Bot action model is introduced in the **Adaptive Cards schema version 1.4**. In order to use these new capabilities, the `version` property of your Adaptive Card must be set to **1.4** or greater, as shown in the below examples. Note that this will make your Adaptive Card incompatible with older clients (Outlook or Teams) that do not support the universal Bot action model.
+>
+> If you use the `refresh` property and/or `Action.Execute` and specify a card version < 1.4, the following will happen:
+>
+> | Client | Behavior |
+> | --- | --- |
+> | Outlook | Your card **WILL NOT** work. `refresh` will not be honored and `Action.Execute` will not render. Your card may even be rejected entirely. |
+> | Teams | Your card **MAY NOT** work (the `refresh` may not be honored, and the `Action.Execute` actions may not render) depending on the version of the Teams client.<br><br> To ensure maximum compatibility in Teams, consider defining your `Action.Execute` actions with an `Action.Submit` action in the `fallback` property. |
+>
+> Refer to the **Backward compatibility** section below for more information.
+
 
 ### Action.Execute
 
@@ -228,12 +238,14 @@ In order for your cards to be backward compatible and work for users on older ve
 
 > #### Important note
 > Some older Teams clients do not support fallback property when not wrapped in an `ActionSet`. In order to not break on such clients, it is **strongly recommended** that you wrap _all_ your `Action.Execute` in `ActionSet`. See example below on how to wrap `Action.Execute` in `ActionSet`.
- 
+
+In the below example, note the `version` property of the card is set to `1.2` and the `Action.Execute` is defined with an `Action.Submit` as its `fallback`. When rendered in a Teams client that supports Adaptive Cards 1.4, the `Action.Execute` will render and work as expected. In Teams clients that do not support Adaptive Cards 1.4, the `Action.Submit` will be rendered in place of the `Action.Execute`.
+
 ```JSON
 {
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
-  "version": "1.4",
+  "version": "1.2",
   "body": [
     {
       "type": "TextBlock",
@@ -256,7 +268,10 @@ In order for your cards to be backward compatible and work for users on older ve
           "type": "Action.Execute",
           "title": "Submit",
           "verb": "personalDetailsFormSubmit",
-          "fallback": "Action.Submit"
+          "fallback": {
+            "Action.Submit",
+            "title": "Submit"
+          }  
         }
       ]
     }
