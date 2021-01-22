@@ -20,9 +20,13 @@ Before `Action.Execute` |  With `Action.Execute`
 
 Source: [Adaptive Cards @ Microsoft Build 2020](https://youtu.be/hEBhwB72Qn4?t=1393)
 
-The rest of this document focuses on documenting the universal Bot action model in the context of Teams & Outlook. If you are already using Adaptive cards on Teams with Bot, you can use  the same Bot with a few changes to support `Action.Execute`. If you are using Actionable Messages on Outlook, you will need to develop a Bot that supports `Action.Execute`. Currently the support on Outlook clients for Universal Bot action model is under active development.
+The rest of this document focuses on documenting the universal Bot action model in the context of Teams & Outlook. If you are already using Adaptive cards on Teams with Bot, you can use the same Bot with a few changes to support `Action.Execute`. If you are using Actionable Messages on Outlook, you will need to develop a Bot that supports `Action.Execute`. Currently the support on Outlook clients for Universal Bot action model is under active development.
 
 ## Schema
+
+> **IMPORTANT**
+>
+> The universal Bot action model is introduced in the **Adaptive Cards schema version 1.4**. In order to use these new capabilities, the `version` property of your Adaptive Card must be set to **1.4** or greater, as shown in the below examples. Note that this will make your Adaptive Card incompatible with older clients (Outlook or Teams) that do not support the universal Bot action model.
 
 ### Action.Execute
 
@@ -33,7 +37,7 @@ When authoring Adaptive Cards, use `Action.Execute` in place of both `Action.Sub
 {
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
-  "version": "2.0",
+  "version": "1.4",
   "body": [
     {
       "type": "TextBlock",
@@ -95,7 +99,7 @@ To allow an Adaptiver Card to automatically refresh, define its `refresh` proper
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
   "originator":"c9b4352b-a76b-43b9-88ff-80edddaa243b",
-  "version": "2.0",
+  "version": "1.4",
   "refresh": {
     "action": {
       "type": "Action.Execute",
@@ -229,7 +233,7 @@ In order for your cards to be backward compatible and work for users on older ve
 {
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
-  "version": "1.0",
+  "version": "1.4",
   "body": [
     {
       "type": "TextBlock",
